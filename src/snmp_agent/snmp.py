@@ -1,6 +1,6 @@
 from __future__ import annotations
 import enum
-from typing import Any
+from typing import Any, overload
 import ipaddress
 
 
@@ -279,7 +279,7 @@ class Decoder:
         return self._decoder.eof()
 
     def leave(self) -> None:
-        self._decoder.leave()Decoder
+        self._decoder.leave()
 
 
 def decode_request(data: bytes) -> SNMPRequest:
@@ -362,27 +362,60 @@ class SNMP:
     def __init__(self) -> None:
         pass
 
-    def to_dict(self) -> None:
-        dict_ = self._to_primitive(self)
+    def to_dict(self) -> dict[str, Any]:
+        dict_ = SNMP._to_primitive(self)
         return dict_
 
-    def _to_primitive(self, value) -> None:
+    @overload
+    @staticmethod
+    def _to_primitive(value: dict) -> dict: ...
+
+    @overload
+    @staticmethod
+    def _to_primitive(value: list) -> list: ...
+
+    @overload
+    @staticmethod
+    def _to_primitive(value: bool) -> bool: ...
+
+    @overload
+    @staticmethod
+    def _to_primitive(value: int) -> int: ...
+
+    @overload
+    @staticmethod
+    def _to_primitive(value: str) -> str: ...
+
+    @overload
+    @staticmethod
+    def _to_primitive(value: bytes) -> bytes: ...
+
+    @overload
+    @staticmethod
+    def _to_primitive(value: None) -> None: ...
+
+    @overload
+    @staticmethod
+    def _to_primitive(value) -> dict: ...
+
+    @staticmethod
+    def _to_primitive(value):
         if isinstance(value, dict):
             _dict = {}
             for k, v in value.items():
-                _dict[k] = self._to_primitive(v)
+                _dict[k] = SNMP._to_primitive(v)
             return _dict
         elif isinstance(value, list):
             items = []
             for item in value:
-                items.append(self._to_primitive(item))
+                items.append(SNMP._to_primitive(item))
             return items
         elif isinstance(value, (int, str, bool, bytes)) or value is None:
             return value
         else:
             _dict = {}
             for k, v in vars(value).items():
-                _dict[k] = self._to_primitive(v)
+                _dict[k] = SNMP._to_primitive(v)
             return _dict
 
 
