@@ -303,7 +303,7 @@ def decode_request(data: bytes) -> SNMPRequest:
     _, _value = decoder.read()
     version_code: int = _value
     try:
-        version = VERSION[version_code]
+        version = VERSION(version_code)
     except KeyError:
         raise NotImplementedError(
             f"SNMP Version code '{version_code}' is not implemented"
@@ -314,7 +314,7 @@ def decode_request(data: bytes) -> SNMPRequest:
 
     # Get pdu_type, request_id, non_repeaters and max_repetitions
     _tag = decoder.peek()
-    _pdu_type_code = _tag.cls | _tag.typ | _tag.nr
+    _pdu_type_code = ASN1(_tag.cls | _tag.typ | _tag.nr)
     try:
         context = _TAG_2_CONEXT[_pdu_type_code]()
     except KeyError:
