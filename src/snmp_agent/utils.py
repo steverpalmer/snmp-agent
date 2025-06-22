@@ -1,11 +1,9 @@
-from typing import List
-
 from . import snmp
 
 
 def handle_request(
-    req: snmp.SNMPRequest, vbs: List[snmp.VariableBinding]
-) -> List[snmp.VariableBinding]:
+    req: snmp.SNMPRequest, vbs: list[snmp.VariableBinding]
+) -> list[snmp.VariableBinding]:
     if isinstance(req.context, snmp.SnmpGetContext):
         results = get(req_vbs=req.variable_bindings, vbs=vbs)
     elif isinstance(req.context, snmp.SnmpGetNextContext):
@@ -23,9 +21,9 @@ def handle_request(
 
 
 def get(
-    req_vbs: List[snmp.VariableBinding], vbs: List[snmp.VariableBinding]
-) -> List[snmp.VariableBinding]:
-    results: List[snmp.VariableBinding] = []
+    req_vbs: list[snmp.VariableBinding], vbs: list[snmp.VariableBinding]
+) -> list[snmp.VariableBinding]:
+    results: list[snmp.VariableBinding] = []
     for req_vb in req_vbs:
         _results = [vb for vb in vbs if req_vb.oid == vb.oid]
         if _results:
@@ -37,10 +35,10 @@ def get(
 
 
 def get_next(
-    req_vbs: List[snmp.VariableBinding], vbs: List[snmp.VariableBinding]
-) -> snmp.List[snmp.VariableBinding]:
+    req_vbs: list[snmp.VariableBinding], vbs: list[snmp.VariableBinding]
+) -> list[snmp.VariableBinding]:
     sorted_vbs = sorted(vbs, key=lambda x: [int(o) for o in x.oid.split(".")])
-    results: List[snmp.VariableBinding] = []
+    results: list[snmp.VariableBinding] = []
     for req_vb in req_vbs:
         next_vb = snmp.VariableBinding(oid=req_vb.oid, value=snmp.EndOfMibView())
         for vb in sorted_vbs:
@@ -55,11 +53,11 @@ def get_next(
 
 
 def get_bulk(
-    req_vbs: List[snmp.VariableBinding],
+    req_vbs: list[snmp.VariableBinding],
     non_repeaters: int,
     max_repetitions: int,
-    vbs: List[snmp.VariableBinding],
-) -> List[snmp.VariableBinding]:
+    vbs: list[snmp.VariableBinding],
+) -> list[snmp.VariableBinding]:
     # non_repeaters
     _req_vbs = req_vbs[:non_repeaters]
     results = get_next(req_vbs=_req_vbs, vbs=vbs)

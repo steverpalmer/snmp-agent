@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Dict, Tuple, Any, Optional
+from typing import Any
 import ipaddress
 
 import asn1
@@ -285,7 +285,7 @@ class Decoder(object):
     def enter(self):
         self._decoder.enter()
 
-    def read(self) -> Tuple[Any, Any]:
+    def read(self) -> tuple[Any, Any]:
         # TODO: Look into response type warning
         return self._decoder.read()  # (asn1.Tag, value)
 
@@ -410,7 +410,7 @@ class SNMPRequest(SNMP):
         community: str,
         context: SnmpContext,
         request_id: int,
-        variable_bindings: List[VariableBinding],
+        variable_bindings: list[VariableBinding],
         non_repeaters: int = 0,
         max_repetitions: int = 0,
     ):
@@ -424,7 +424,7 @@ class SNMPRequest(SNMP):
 
     def create_response(
         self,
-        variable_bindings: List[VariableBinding],
+        variable_bindings: list[VariableBinding],
         error_status: int = 0,
         error_index: int = 0,
     ):
@@ -444,7 +444,7 @@ class SNMPResponse(SNMP):
         version: VersionValue,
         community: str,
         request_id: int,
-        variable_bindings: List[VariableBinding],
+        variable_bindings: list[VariableBinding],
         error_status: int = 0,
         error_index: int = 0,
     ):
