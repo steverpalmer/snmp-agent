@@ -8,13 +8,16 @@ import asn1
 
 
 class CodeMixin(int):
-    def get_class(self) -> int:
+    @property
+    def class_(self) -> int:
         return self & 0xC0
 
-    def get_pc(self) -> int:
+    @property
+    def pc(self) -> int:
         return self & 0x20
 
-    def get_tag_number(self) -> int:
+    @property
+    def tag_number(self) -> int:
         return self & 0x1F
 
 
@@ -54,14 +57,17 @@ class SNMPValue:
     def __init__(self, tag: ASN1) -> None:
         self.tag = tag
 
-    def get_class(self) -> int:
-        return self.tag.get_class()
+    @property
+    def class_(self) -> int:
+        return self.tag.class_
 
-    def get_pc(self) -> int:
-        return self.tag.get_pc()
+    @property
+    def pc(self) -> int:
+        return self.tag.pc
 
-    def get_tag_number(self) -> int:
-        return self.tag.get_tag_number()
+    @property
+    def tag_number(self) -> int:
+        return self.tag.tag_number
 
 
 class SNMPLeafValue(SNMPValue):
@@ -218,14 +224,14 @@ class Encoder:
         self._encoder.start()
 
     def enter(self, value: SNMPConstructedValue):
-        self._encoder.enter(cls=value.get_class(), nr=value.get_tag_number())
+        self._encoder.enter(cls=value.class_, nr=value.tag_number)
 
     def leave(self) -> None:
         self._encoder.leave()
 
     def write(self, value: SNMPLeafValue) -> None:
         self._encoder._emit_tag(
-            cls=value.get_class(), typ=value.get_pc(), nr=value.get_tag_number()
+            cls=value.class_, typ=value.pc, nr=value.tag_number
         )
         value_bytes = value.encode()
         self._encoder._emit_length(len(value_bytes))
