@@ -13,8 +13,8 @@ class VersionValue(object):
 
 
 class VERSION(object):
-    V1 = VersionValue(name='v1', code=0x00)
-    V2C = VersionValue(name='v2c', code=0x01)
+    V1 = VersionValue(name="v1", code=0x00)
+    V2C = VersionValue(name="v2c", code=0x01)
 
 
 # ASN.1 TAG
@@ -22,38 +22,38 @@ class Tag(object):
     def __init__(self, name, code):
         self.name = name
         self.code = code
-    
+
     def get_class(self) -> int:
-        return self.code & 0xc0
-    
+        return self.code & 0xC0
+
     def get_pc(self) -> int:
         return self.code & 0x20
 
     def get_tag_number(self) -> int:
-        return self.code & 0x1f
+        return self.code & 0x1F
 
 
 class ASN1(object):
-    BOOLEAN = Tag(name='BOOLEAN', code=0x01)
-    INTEGER = Tag(name='INTEGER', code=0x02)
-    OCTET_STRING = Tag(name='OCTET_STRING', code=0x04)
-    NULL = Tag(name='NULL', code=0x05)
-    OBJECT_IDENTIFIER = Tag(name='OBJECT_IDENTIFIER', code=0x06)
-    SEQUENCE = Tag(name='SEQUENCE', code=0x30)
-    IPADDRESS = Tag(name='IPADDRESS', code=0x40)
-    COUNTER32 = Tag(name='COUNTER32', code=0x41)
-    GAUGE32 = Tag(name='GAUGE32', code=0x42)
-    TIME_TICKS = Tag(name='TIME_TICKS', code=0x43)
-    COUNTER64 = Tag(name='COUNTER64', code=0x46)
-    NO_SUCH_OBJECT = Tag(name='NO_SUCH_OBJECT', code=0x80)
-    NO_SUCH_INSTANCE = Tag(name='NO_SUCH_INSTANCE', code=0x81)
-    END_OF_MIB_VIEW = Tag(name='END_OF_MIB_VIEW', code=0x82)
+    BOOLEAN = Tag(name="BOOLEAN", code=0x01)
+    INTEGER = Tag(name="INTEGER", code=0x02)
+    OCTET_STRING = Tag(name="OCTET_STRING", code=0x04)
+    NULL = Tag(name="NULL", code=0x05)
+    OBJECT_IDENTIFIER = Tag(name="OBJECT_IDENTIFIER", code=0x06)
+    SEQUENCE = Tag(name="SEQUENCE", code=0x30)
+    IPADDRESS = Tag(name="IPADDRESS", code=0x40)
+    COUNTER32 = Tag(name="COUNTER32", code=0x41)
+    GAUGE32 = Tag(name="GAUGE32", code=0x42)
+    TIME_TICKS = Tag(name="TIME_TICKS", code=0x43)
+    COUNTER64 = Tag(name="COUNTER64", code=0x46)
+    NO_SUCH_OBJECT = Tag(name="NO_SUCH_OBJECT", code=0x80)
+    NO_SUCH_INSTANCE = Tag(name="NO_SUCH_INSTANCE", code=0x81)
+    END_OF_MIB_VIEW = Tag(name="END_OF_MIB_VIEW", code=0x82)
 
-    GET_REQUEST = Tag(name='GET_REQUEST', code=0xA0)
-    GET_NEXT_REQUEST = Tag(name='GET_NEXT_REQUEST', code=0xA1)
-    GET_RESPONSE = Tag(name='GET_RESPONSE', code=0xA2)
-    SET_REQUEST = Tag(name='SET_REQUEST', code=0xA3)
-    GET_BULK_REQUEST = Tag(name='GET_BULK_REQUEST', code=0xA5)
+    GET_REQUEST = Tag(name="GET_REQUEST", code=0xA0)
+    GET_NEXT_REQUEST = Tag(name="GET_NEXT_REQUEST", code=0xA1)
+    GET_RESPONSE = Tag(name="GET_RESPONSE", code=0xA2)
+    SET_REQUEST = Tag(name="SET_REQUEST", code=0xA3)
+    GET_BULK_REQUEST = Tag(name="GET_BULK_REQUEST", code=0xA5)
 
 
 class SNMPValue(object):
@@ -65,7 +65,7 @@ class SNMPValue(object):
 
     def get_pc(self) -> int:
         return self.tag.get_pc()
-    
+
     def get_tag_number(self) -> int:
         return self.tag.get_tag_number()
 
@@ -175,7 +175,7 @@ class NoSuchObject(SNMPLeafValue):
         self.tag = ASN1.NO_SUCH_OBJECT
 
     def encode(self) -> bytes:
-        return b''
+        return b""
 
 
 class NoSuchInstance(SNMPLeafValue):
@@ -184,7 +184,7 @@ class NoSuchInstance(SNMPLeafValue):
         self.tag = ASN1.NO_SUCH_INSTANCE
 
     def encode(self) -> bytes:
-        return b''
+        return b""
 
 
 class EndOfMibView(SNMPLeafValue):
@@ -193,7 +193,7 @@ class EndOfMibView(SNMPLeafValue):
         self.tag = ASN1.END_OF_MIB_VIEW
 
     def encode(self) -> bytes:
-        return b''
+        return b""
 
 
 class SNMPConstructedValue(SNMPValue):
@@ -241,9 +241,9 @@ class Encoder(object):
         self._encoder.leave()
 
     def write(self, value: SNMPLeafValue):
-        self._encoder._emit_tag(cls=value.get_class(), 
-                                typ=value.get_pc(), 
-                                nr=value.get_tag_number())
+        self._encoder._emit_tag(
+            cls=value.get_class(), typ=value.get_pc(), nr=value.get_tag_number()
+        )
         value_bytes = value.encode()
         self._encoder._emit_length(len(value_bytes))
         self._encoder._emit(value_bytes)
@@ -284,17 +284,17 @@ class Decoder(object):
 
     def enter(self):
         self._decoder.enter()
-    
+
     def read(self) -> Tuple[Any, Any]:
         # TODO: Look into response type warning
-        return self._decoder.read() # (asn1.Tag, value)
+        return self._decoder.read()  # (asn1.Tag, value)
 
     def peek(self) -> asn1.Tag:
         return self._decoder.peek()
-    
+
     def eof(self) -> bool:
         return self._decoder.eof()
-    
+
     def leave(self):
         self._decoder.leave()
 
@@ -311,7 +311,9 @@ def decode_request(data: bytes) -> SNMPRequest:
     elif VERSION.V2C.code == version_code:
         version = VERSION.V2C
     else:
-        raise NotImplementedError(f"SNMP Version code '{version_code}' is not implemented")
+        raise NotImplementedError(
+            f"SNMP Version code '{version_code}' is not implemented"
+        )
 
     _, _value = decoder.read()
     community = _value.decode()
@@ -326,7 +328,9 @@ def decode_request(data: bytes) -> SNMPRequest:
     elif ASN1.GET_BULK_REQUEST.code == _pdu_type_code:
         context = SnmpGetBulkContext()
     else:
-        raise NotImplementedError(f"PDU-TYPE code '{_pdu_type_code}' is not implemented")
+        raise NotImplementedError(
+            f"PDU-TYPE code '{_pdu_type_code}' is not implemented"
+        )
 
     decoder.enter()
     _, _value = decoder.read()
@@ -361,13 +365,14 @@ def decode_request(data: bytes) -> SNMPRequest:
     decoder.leave()
 
     return SNMPRequest(
-                version=version, 
-                community=community, 
-                context=context,
-                request_id=request_id, 
-                non_repeaters=non_repeaters, 
-                max_repetitions=max_repetitions, 
-                variable_bindings=variable_bindings)
+        version=version,
+        community=community,
+        context=context,
+        request_id=request_id,
+        non_repeaters=non_repeaters,
+        max_repetitions=max_repetitions,
+        variable_bindings=variable_bindings,
+    )
 
 
 class SNMP(object):
@@ -377,7 +382,7 @@ class SNMP(object):
     def to_dict(self):
         dict_ = self._to_primitive(self)
         return dict_
-    
+
     def _to_primitive(self, value):
         if isinstance(value, dict):
             _dict = {}
@@ -399,10 +404,16 @@ class SNMP(object):
 
 
 class SNMPRequest(SNMP):
-    def __init__(self, version: VersionValue, community: str, context: SnmpContext,
-                 request_id: int, variable_bindings: List[VariableBinding],
-                 non_repeaters: int = 0, 
-                 max_repetitions: int = 0):
+    def __init__(
+        self,
+        version: VersionValue,
+        community: str,
+        context: SnmpContext,
+        request_id: int,
+        variable_bindings: List[VariableBinding],
+        non_repeaters: int = 0,
+        max_repetitions: int = 0,
+    ):
         self.version = version
         self.community = community
         self.context = context
@@ -410,21 +421,33 @@ class SNMPRequest(SNMP):
         self.non_repeaters = non_repeaters
         self.max_repetitions = max_repetitions
         self.variable_bindings = variable_bindings
-    
-    def create_response(self, 
-                        variable_bindings: List[VariableBinding],
-                        error_status: int = 0, error_index: int = 0):
+
+    def create_response(
+        self,
+        variable_bindings: List[VariableBinding],
+        error_status: int = 0,
+        error_index: int = 0,
+    ):
         return SNMPResponse(
-                 version=self.version, community=self.community, 
-                 request_id=self.request_id, 
-                 variable_bindings=variable_bindings,
-                 error_status=error_status, error_index=error_index)
-    
+            version=self.version,
+            community=self.community,
+            request_id=self.request_id,
+            variable_bindings=variable_bindings,
+            error_status=error_status,
+            error_index=error_index,
+        )
+
 
 class SNMPResponse(SNMP):
-    def __init__(self, version: VersionValue, community: str, request_id: int, 
-                 variable_bindings: List[VariableBinding],
-                 error_status: int = 0, error_index: int = 0):
+    def __init__(
+        self,
+        version: VersionValue,
+        community: str,
+        request_id: int,
+        variable_bindings: List[VariableBinding],
+        error_status: int = 0,
+        error_index: int = 0,
+    ):
         self.version = version
         self.community = community
         self.context = SnmpGetResponseContext()
@@ -432,13 +455,12 @@ class SNMPResponse(SNMP):
         self.error_status = error_status
         self.error_index = error_index
         self.variable_bindings = variable_bindings
-    
+
 
 class VariableBinding(SNMP):
     def __init__(self, oid: str, value: SNMPLeafValue):
         self.oid = oid.lstrip(".")
         self.value = value
-    
+
     def encode(self):
         return self.value.encode()
-
