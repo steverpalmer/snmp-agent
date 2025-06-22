@@ -4,20 +4,20 @@ from . import snmp
 def handle_request(
     req: snmp.SNMPRequest, vbs: list[snmp.VariableBinding]
 ) -> list[snmp.VariableBinding]:
-    if isinstance(req.context, snmp.SnmpGetContext):
-        results = get(req_vbs=req.variable_bindings, vbs=vbs)
-    elif isinstance(req.context, snmp.SnmpGetNextContext):
-        results = get_next(req_vbs=req.variable_bindings, vbs=vbs)
-    elif isinstance(req.context, snmp.SnmpGetBulkContext):
-        results = get_bulk(
-            req_vbs=req.variable_bindings,
-            non_repeaters=req.non_repeaters,
-            max_repetitions=req.max_repetitions,
-            vbs=vbs,
-        )
-    else:
-        raise NotImplementedError
-    return results
+    match req.context:
+        case snmp.SnmpGetContext():
+            return get(req_vbs=req.variable_bindings, vbs=vbs)
+        case snmp.SnmpGetNextContext():
+            return get_next(req_vbs=req.variable_bindings, vbs=vbs)
+        case snmp.SnmpGetBulkContext():
+            return get_bulk(
+                req_vbs=req.variable_bindings,
+                non_repeaters=req.non_repeaters,
+                max_repetitions=req.max_repetitions,
+                vbs=vbs,
+            )
+        case _:
+            raise NotImplementedError
 
 
 def get(

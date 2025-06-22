@@ -216,6 +216,13 @@ class SnmpGetResponseContext(SnmpContext):
         super().__init__(ASN1.GET_RESPONSE)
 
 
+_TAG_2_CONEXT = {
+    ASN1.GET_REQUEST: SnmpGetContext,
+    ASN1.GET_NEXT_REQUEST: SnmpGetNextContext,
+    ASN1.GET_BULK_REQUEST: SnmpGetBulkContext
+}
+
+
 class Encoder:
     _encode: asn1.Encoder
 
@@ -295,14 +302,12 @@ def decode_request(data: bytes) -> SNMPRequest:
     decoder.enter()
     _, _value = decoder.read()
     version_code: int = _value
-    if VERSION.V1 == version_code:
-        version = VERSION.V1
-    elif VERSION.V2C == version_code:
-        version = VERSION.V2C
-    else:
+    try:
+        version = VERSION[version_code]
+    except KeyError:
         raise NotImplementedError(
             f"SNMP Version code '{version_code}' is not implemented"
-        )
+        ) from None
 
     _, _value = decoder.read()
     community = _value.decode()
@@ -310,13 +315,9 @@ def decode_request(data: bytes) -> SNMPRequest:
     # Get pdu_type, request_id, non_repeaters and max_repetitions
     _tag = decoder.peek()
     _pdu_type_code = _tag.cls | _tag.typ | _tag.nr
-    if ASN1.GET_REQUEST == _pdu_type_code:
-        context = SnmpGetContext()
-    elif ASN1.GET_NEXT_REQUEST == _pdu_type_code:
-        context = SnmpGetNextContext()
-    elif ASN1.GET_BULK_REQUEST == _pdu_type_code:
-        context = SnmpGetBulkContext()
-    else:
+    try:
+        context = _TAG_2_CONEXT[_pdu_type_code]()
+    except KeyError:
         raise NotImplementedError(
             f"PDU-TYPE code '{_pdu_type_code}' is not implemented"
         )
@@ -406,23 +407,24 @@ class SNMP:
 
     @staticmethod
     def _to_primitive(value):
-        if isinstance(value, dict):
-            _dict = {}
-            for k, v in value.items():
-                _dict[k] = SNMP._to_primitive(v)
-            return _dict
-        elif isinstance(value, list):
-            items = []
-            for item in value:
-                items.append(SNMP._to_primitive(item))
-            return items
-        elif isinstance(value, (int, str, bool, bytes)) or value is None:
-            return value
-        else:
-            _dict = {}
-            for k, v in vars(value).items():
-                _dict[k] = SNMP._to_primitive(v)
-            return _dict
+        match value:
+            case dict():
+                _dict = {}
+                for k, v in value.items():
+                    _dict[k] = SNMP._to_primitive(v)
+                return _dict
+            case list():
+                items = []
+                for item in value:
+                    items.append(SNMP._to_primitive(item))
+                return items
+            case int() | str() | bool() | bytes() | None:
+                return value
+            case _:
+                _dict = {}
+                for k, v in vars(value).items():
+                    _dict[k] = SNMP._to_primitive(v)
+                return _dict
 
 
 class SNMPRequest(SNMP):
