@@ -41,7 +41,7 @@ class SNMPProtocol(asyncio.BaseProtocol):
         logger.debug(f"Responded: {res.to_dict()}")
 
 
-class Server(object):
+class Server:
     def __init__(
         self,
         handler: Callable[[snmp.SNMPRequest], Awaitable[snmp.SNMPResponse]],

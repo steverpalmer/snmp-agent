@@ -6,19 +6,19 @@ import asn1
 
 
 # SNMP Version
-class VersionValue(object):
+class VersionValue:
     def __init__(self, name: str, code: int):
         self.name = name
         self.code = code
 
 
-class VERSION(object):
+class VERSION:
     V1 = VersionValue(name="v1", code=0x00)
     V2C = VersionValue(name="v2c", code=0x01)
 
 
 # ASN.1 TAG
-class Tag(object):
+class Tag:
     def __init__(self, name, code):
         self.name = name
         self.code = code
@@ -33,7 +33,7 @@ class Tag(object):
         return self.code & 0x1F
 
 
-class ASN1(object):
+class ASN1:
     BOOLEAN = Tag(name="BOOLEAN", code=0x01)
     INTEGER = Tag(name="INTEGER", code=0x02)
     OCTET_STRING = Tag(name="OCTET_STRING", code=0x04)
@@ -56,7 +56,7 @@ class ASN1(object):
     GET_BULK_REQUEST = Tag(name="GET_BULK_REQUEST", code=0xA5)
 
 
-class SNMPValue(object):
+class SNMPValue:
     def __init__(self):
         self.tag: Tag
 
@@ -229,7 +229,7 @@ class SnmpGetResponseContext(SnmpContext):
         self.tag = ASN1.GET_RESPONSE
 
 
-class Encoder(object):
+class Encoder:
     def __init__(self):
         self._encoder = asn1.Encoder()
         self._encoder.start()
@@ -277,7 +277,7 @@ def encode_response(response: SNMPResponse) -> bytes:
     return encoder.output()
 
 
-class Decoder(object):
+class Decoder:
     def __init__(self, data: bytes):
         self._decoder = asn1.Decoder()
         self._decoder.start(data=data)
@@ -375,7 +375,7 @@ def decode_request(data: bytes) -> SNMPRequest:
     )
 
 
-class SNMP(object):
+class SNMP:
     def __init__(self):
         pass
 
